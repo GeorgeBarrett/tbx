@@ -43,8 +43,10 @@ class Handler:
         parser.add_argument("action", choices=["add"])
         parser.add_argument("item", type=str)
         args = parser.parse_args()
+
         with open(self.todo_file, "a") as f:
-            f.write(args.item + "\n")
+            # added .replace("\n", " ")
+            f.write(args.item.replace("\n", " ") + "\n")
 
     def do(self):
         """Move an item from the todo file to the done file."""
