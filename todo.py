@@ -59,18 +59,24 @@ class Handler:
         with open(self.todo_file, "r") as f:
             items = f.readlines()
 
-        # Append the done item to the done file
-        with open(self.done_file, "a") as f:
-            f.write(items[args.line_number])
+        # this is the code fix for bug 2
+        # I recognised that 'items = f.readlines()' was causing the issue
+        
+        if len(items) > args.line_number:
+            # Append the done item to the done file
+            with open(self.done_file, "a") as f:
+                f.write(items[args.line_number])
 
-        # Write out all but the done items
-        with open(self.todo_file, "w") as f:
-            new_todos = "".join(
-                items[: args.line_number] + items[args.line_number + 1 :]
-            )
-            f.write(new_todos)
-
-        print(f"Done: {items[args.line_number].strip()}")
+            # Write out all but the done items
+            with open(self.todo_file, "w") as f:
+                new_todos = "".join(
+                    items[: args.line_number] + items[args.line_number + 1 :]
+                )
+                f.write(new_todos)
+            print(f"Done: {items[args.line_number].strip()}")
+        
+        else:
+            print("This item does not exist")
 
 
 if __name__ == "__main__":

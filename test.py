@@ -201,6 +201,13 @@ class TestDo(PrintTestCase):
         self.assertWrittenToTodoFile(m, "One\nTwo\n")
         self.assertPrinted("Done: Three\n")
 
+    # test for second bug. I just extended this from the previous testing pattern
+    def test_doing_something_that_doesnt_exist(self):
+        m = mock_open(read_data="One\nTwo\nThree\n")
+        with patch("todo.open", m):
+            with patch.object(sys, "argv", ["todo.py", "do", "3"]):
+                Handler().handle()
+        self.assertPrinted("This item does not exist\n")
 
 if __name__ == "__main__":
     unittest.main()
