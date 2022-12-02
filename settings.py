@@ -1,2 +1,2 @@
-TODO_FILE = "side_thorns.txt"
-DONE_FILE = "victories.txt"
+TODO_FILE = "todo.txt"
+DONE_FILE = "done.txt"

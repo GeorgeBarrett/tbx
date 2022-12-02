@@ -3,8 +3,10 @@ import unittest
 from io import StringIO
 from textwrap import dedent
 from unittest.mock import call, mock_open, patch
-
 from todo import Handler
+
+# I imported this module for enhancement 1
+from datetime import datetime 
 
 
 class PrintTestCase(unittest.TestCase):
@@ -184,9 +186,8 @@ class TestDo(PrintTestCase):
         with patch("todo.open", m):
             with patch.object(sys, "argv", ["todo.py", "do", "0"]):
                 Handler().handle()
-
         self.assertEqual(len(m.mock_calls), 12)
-        self.assertAppendedToDoneFile(m, "One\n")
+        self.assertAppendedToDoneFile(m, "One\n") # + datetime.today().strftime('%Y-%m-%d')
         self.assertWrittenToTodoFile(m, "Two\nThree\n")
         self.assertPrinted("Done: One\n")
 
@@ -201,7 +202,8 @@ class TestDo(PrintTestCase):
         self.assertWrittenToTodoFile(m, "One\nTwo\n")
         self.assertPrinted("Done: Three\n")
 
-    # test for second bug. I just extended this from the previous testing pattern
+    # This is the test for bug 2 
+    # I maintained your testing style for continuity
     def test_doing_something_that_doesnt_exist(self):
         m = mock_open(read_data="One\nTwo\nThree\n")
         with patch("todo.open", m):
