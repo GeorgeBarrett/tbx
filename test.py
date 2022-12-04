@@ -202,8 +202,7 @@ class TestDo(PrintTestCase):
         self.assertWrittenToTodoFile(m, "One\nTwo\n")
         self.assertPrinted("Done: Three\n")
 
-    # This is the test for bug 2 
-    # I maintained your testing style for continuity
+    # test for bug 2 
     def test_doing_something_that_doesnt_exist(self):
         m = mock_open(read_data="One\nTwo\nThree\n")
         with patch("todo.open", m):
