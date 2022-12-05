@@ -5,9 +5,6 @@ from textwrap import dedent
 from unittest.mock import call, mock_open, patch
 from todo import Handler
 
-# I imported this module for enhancement 1
-from datetime import datetime 
-
 
 class PrintTestCase(unittest.TestCase):
     """A custom TestCase to capture print output, and make assertions about it."""
@@ -33,13 +30,13 @@ class TestList(PrintTestCase):
 
     def test_basic(self):
         with patch("todo.open", mock_open(read_data="One\nTwo\n")):
-            Handler().list()
+            with patch.object(sys, "argv", ["todo.py", "list", "One"]):
+                Handler().list()
         expected = dedent(
             """\
-            0 One
-            1 Two
+            1 One
             ---
-            2 item(s)
+            1 item(s)
             """
         )
         self.assertPrinted(expected)
@@ -47,7 +44,9 @@ class TestList(PrintTestCase):
     def test_empty(self):
         """Ensure that an empty file prints only the summary"""
         with patch("todo.open", mock_open()):
-            Handler().list()
+            with patch.object(sys, "argv", ["todo.py", "list", "Foo"]):
+                Handler().list()
+
         expected = dedent(
             """\
             ---
@@ -64,22 +63,14 @@ class TestList(PrintTestCase):
                 read_data="One\nTwo\nThree\nFour\nFive\nSix\nSeven\nEight\nNine\nTen\nEleven"
             ),
         ):
-            Handler().list()
+            with patch.object(sys, "argv", ["todo.py", "list", "One"]):
+                Handler().list()
+            
         expected = dedent(
             """\
-            0 One
-            1 Two
-            2 Three
-            3 Four
-            4 Five
-            5 Six
-            6 Seven
-            7 Eight
-            8 Nine
-            9 Ten
-            10 Eleven
+             1 One
             ---
-            11 item(s)
+            1 item(s)
             """
         )
         self.assertPrinted(expected)
@@ -159,7 +150,9 @@ class TestDo(PrintTestCase):
     def test_file_handling_sequence(self):
         """Tests of the todo file handling sequence"""
         m = mock_open(read_data="One\nTwo\nThree\n")
-        with patch("todo.open", m):
+        with patch("todo.open", m), patch('todo.get_today_time') as today_mock:
+            today = '2024-12-05'
+            today_mock.return_value = today 
             with patch.object(sys, "argv", ["todo.py", "do", "1"]):
                 Handler().handle()
         self.maxDiff = None
@@ -170,11 +163,11 @@ class TestDo(PrintTestCase):
             call().__exit__(None, None, None),
             call("done.txt", "a"),  # open done.txt in append mode
             call().__enter__(),
-            call().write("Two\n"),  # write "Two" to done.txt
+            call().write(f"One ({today})\n"),  # write "Two" to done.txt
             call().__exit__(None, None, None),
             call("todo.txt", "w"),
             call().__enter__(),
-            call().write("One\nThree\n"),  # write "One\nThree\n" to todo.txt
+            call().write("Two\nThree\n"),  # write "One\nThree\n" to todo.txt
             call().__exit__(None, None, None),
         ]
         for actual, expected in zip(m.mock_calls, expected_calls):
@@ -183,22 +176,26 @@ class TestDo(PrintTestCase):
 
     def test_doing_the_first_item(self):
         m = mock_open(read_data="One\nTwo\nThree\n")
-        with patch("todo.open", m):
-            with patch.object(sys, "argv", ["todo.py", "do", "0"]):
+        with patch("todo.open", m), patch('todo.get_today_time') as today_mock:
+            today = '2024-12-05'
+            today_mock.return_value = today 
+            with patch.object(sys, "argv", ["todo.py", "do", "1"]):
                 Handler().handle()
         self.assertEqual(len(m.mock_calls), 12)
-        self.assertAppendedToDoneFile(m, "One\n") # + datetime.today().strftime('%Y-%m-%d')
+        self.assertAppendedToDoneFile(m, f"One ({today})\n")
         self.assertWrittenToTodoFile(m, "Two\nThree\n")
         self.assertPrinted("Done: One\n")
 
     def test_doing_the_last_item(self):
         m = mock_open(read_data="One\nTwo\nThree\n")
-        with patch("todo.open", m):
-            with patch.object(sys, "argv", ["todo.py", "do", "2"]):
+        with patch("todo.open", m), patch('todo.get_today_time') as today_mock:
+            today = '2024-12-05'
+            today_mock.return_value = today 
+            with patch.object(sys, "argv", ["todo.py", "do", "3"]):
                 Handler().handle()
 
         self.assertEqual(len(m.mock_calls), 12)
-        self.assertAppendedToDoneFile(m, "Three\n")
+        self.assertAppendedToDoneFile(m, f"Three ({today})\n")
         self.assertWrittenToTodoFile(m, "One\nTwo\n")
         self.assertPrinted("Done: Three\n")
 
@@ -206,9 +203,9 @@ class TestDo(PrintTestCase):
     def test_doing_something_that_doesnt_exist(self):
         m = mock_open(read_data="One\nTwo\nThree\n")
         with patch("todo.open", m):
-            with patch.object(sys, "argv", ["todo.py", "do", "3"]):
+            with patch.object(sys, "argv", ["todo.py", "do", "4"]):
                 Handler().handle()
-        self.assertPrinted("This item does not exist\n")
+        self.assertPrinted("There is no item 4. Please choose a number from 1 to 3\n")
 
 if __name__ == "__main__":
     unittest.main()
