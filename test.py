@@ -46,7 +46,6 @@ class TestList(PrintTestCase):
         with patch("todo.open", mock_open()):
             with patch.object(sys, "argv", ["todo.py", "list", "Foo"]):
                 Handler().list()
-
         expected = dedent(
             """\
             ---
@@ -105,7 +104,6 @@ class TestAdd(PrintTestCase):
 
     def test_newline(self):
         """Test that the file ends with a newline character
-
         This is implicitly tested in test_basic, but for regression test purposes we
         test it explicitly here.
         """
