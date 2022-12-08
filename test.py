@@ -111,9 +111,7 @@ class TestAdd(PrintTestCase):
         with patch("todo.open", m):
             with patch.object(sys, "argv", ["todo.py", "add", "Foo"]):
                 Handler().add()
-        # The file is opened in "append" mode
         self.assertEqual(m.mock_calls[0], call("todo.txt", "a"))
-        # The final character written is a newline character
         self.assertTrue(m.mock_calls[2].args[0].endswith("\n"))
 
     def test_line_breaks_are_ignored(self):
@@ -155,17 +153,17 @@ class TestDo(PrintTestCase):
                 Handler().handle()
         self.maxDiff = None
         expected_calls = [
-            call("todo.txt", "r"),  # open todo.txt in read mode
+            call("todo.txt", "r"),  
             call().__enter__(),
-            call().readlines(),  # read todo.txt
+            call().readlines(),  
             call().__exit__(None, None, None),
-            call("done.txt", "a"),  # open done.txt in append mode
+            call("done.txt", "a"),  
             call().__enter__(),
-            call().write(f"One ({today})\n"),  # write "Two" to done.txt
+            call().write(f"One ({today})\n"),  
             call().__exit__(None, None, None),
             call("todo.txt", "w"),
             call().__enter__(),
-            call().write("Two\nThree\n"),  # write "One\nThree\n" to todo.txt
+            call().write("Two\nThree\n"),  
             call().__exit__(None, None, None),
         ]
         for actual, expected in zip(m.mock_calls, expected_calls):
@@ -197,7 +195,6 @@ class TestDo(PrintTestCase):
         self.assertWrittenToTodoFile(m, "One\nTwo\n")
         self.assertPrinted("Done: Three\n")
 
-    # test for bug 2 
     def test_doing_something_that_doesnt_exist(self):
         m = mock_open(read_data="One\nTwo\nThree\n")
         with patch("todo.open", m):
