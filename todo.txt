@@ -2,5 +2,4 @@
 apples
 (A) wheels
 lemons
-(D) nap
 (F) read

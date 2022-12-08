@@ -200,7 +200,6 @@ class Handler:
             items = f.readlines()
         
         if not len(items) > list_index:
-            # This line ensures that the print message matches the print message suggested by Torchbox
             print(f"There is no item {line_number}. Please choose a number from 1 to {len(items)}")
             return
         
